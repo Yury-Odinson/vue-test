@@ -1,18 +1,14 @@
 <script setup lang="ts">
 import {Heart, SquarePlus, SquareCheck} from "lucide-vue-next";
-import {ref} from "vue";
 
 const props = defineProps({
   imageUrl: String,
   title: String,
   price: Number,
   isFavorite: Boolean,
-  isAdded: Boolean
+  isAdded: Boolean,
+  onClickFavorite: Function
 });
-
-const isFavorite = ref(props.isFavorite);
-
-const handlerClick = () => isFavorite.value = !isFavorite.value;
 
 </script>
 
@@ -21,8 +17,8 @@ const handlerClick = () => isFavorite.value = !isFavorite.value;
     class="relative p-4 flex flex-col rounded-xl border cursor-pointer last:mr-auto
     hover:-translate-y-2 transition hover:shadow-2xl">
 
-    <button class="absolute top-5 left-5" @click="handlerClick">
-      <span v-if="isFavorite">
+    <button class="absolute top-5 left-5" @click="onClickFavorite">
+      <span v-if="props.isFavorite">
         <Heart color="red" fill="red"/>
       </span>
       <span v-else class="opacity-50 hover:opacity-100 transition">
@@ -40,7 +36,6 @@ const handlerClick = () => isFavorite.value = !isFavorite.value;
         </p>
       </div>
 
-
       <button class="opacity-50 hover:opacity-100 transition">
         <span v-if="isAdded">
           <SquareCheck :size="40" :stroke-width="1"/>
@@ -49,7 +44,6 @@ const handlerClick = () => isFavorite.value = !isFavorite.value;
           <SquarePlus :size="40" :stroke-width="1"/>
         </span>
       </button>
-
 
     </div>
 

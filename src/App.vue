@@ -3,7 +3,7 @@ import Header from "@/components/Header.vue";
 import ProductList from "@/components/ProductList.vue";
 import Drawer from "@/components/Drawer.vue";
 import {Search} from "lucide-vue-next";
-import {onMounted, reactive, ref, watch} from "vue";
+import {onMounted, provide, reactive, ref, watch} from "vue";
 import axios from "axios";
 
 const items = ref([]);
@@ -28,19 +28,71 @@ const fetchItems = async () => {
         params
       }
     );
-    items.value = data;
+    items.value = data.map(item => ({
+      ...item,
+      isFavorite: false,
+      favoriteId: null,
+      isAdded: false
+    }));
   } catch (error) {
     console.log(error);
   }
 }
 
-onMounted(fetchItems);
+const fetchFavorites = async () => {
+  try {
+    const {data: favorites} = await axios.get("https://ea0f705538326561.mokky.dev/favorites");
+    items.value = items.value.map(item => {
+      const favorite = favorites.find(favorite => favorite.parentId === item.id);
+
+      if (!favorite) {
+        return item;
+      }
+
+      return {
+        ...item,
+        isFavorite: true,
+        favoriteId: favorite.id,
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+onMounted(async () => {
+  await fetchItems();
+  await fetchFavorites();
+});
 
 const handlerChangeSelect = (e) => filters.sortBy = e.target.value;
 
 const handlerChangeInput = (e) => filters.searchQuery = e.target.value;
 
+const handlerFavorite = async (item) => {
+
+  try {
+    if (!item.isFavorite) {
+      const obj = {
+        parentId: item.id
+      }
+      item.isFavorite = true;
+      const {data} = await axios.post("https://ea0f705538326561.mokky.dev/favorites", obj);
+      item.favoriteId = data.id;
+    } else {
+      item.isFavorite = false;
+      await axios.delete(`https://ea0f705538326561.mokky.dev/favorites/${item.favoriteId}`);
+      item.favoriteId = null;
+    }
+
+  } catch (error) {
+    console.log(error);
+  }
+
+}
+
 watch(filters, fetchItems);
+provide("toFavorite", handlerFavorite);
 
 </script>
 
@@ -75,7 +127,7 @@ watch(filters, fetchItems);
 
       </div>
 
-      <ProductList :items="items"/>
+      <ProductList :items="items" @handlerFavorite="handlerFavorite"/>
     </div>
     <!--    <div class="mt-5 p-5 border">-->
     <!--      <RouterView/>-->

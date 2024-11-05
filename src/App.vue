@@ -3,15 +3,49 @@ import Header from "@/components/Header.vue";
 import ProductList from "@/components/ProductList.vue";
 import Drawer from "@/components/Drawer.vue";
 import {Search} from "lucide-vue-next";
-import {onMounted, provide, reactive, ref, watch} from "vue";
+import {computed, onMounted, provide, reactive, ref, watch} from "vue";
 import axios from "axios";
 
 const items = ref([]);
+const cartItems = ref([]);
+
+const cartOpen = ref(false);
+
+const totalPrice = computed(() => cartItems.value.reduce((acc, cur) => acc + cur.price, 0));
+
+const vatPrice = computed(() => Math.round((totalPrice.value * 5) / 100));
+
+const closeDrawer = () => {
+  cartOpen.value = false;
+};
+
+const openDrawer = () => {
+  cartOpen.value = true;
+};
 
 const filters = reactive({
   sortBy: "title",
   searchQuery: ""
 });
+
+const onClickToCart = (item) => {
+
+  if (!item.isAdded) {
+    addToCart(item);
+  } else {
+    removeFromCart(item);
+  }
+}
+
+const addToCart = (item) => {
+  cartItems.value.push(item);
+  item.isAdded = true;
+}
+
+const removeFromCart = (item) => {
+  cartItems.value.splice(cartItems.value.indexOf(item), 1);
+  item.isAdded = false;
+}
 
 const fetchItems = async () => {
   try {
@@ -92,16 +126,23 @@ const handlerFavorite = async (item) => {
 }
 
 watch(filters, fetchItems);
-provide("toFavorite", handlerFavorite);
+
+provide("cart", {
+  cartItems,
+  openDrawer,
+  closeDrawer,
+  addToCart,
+  removeFromCart
+});
 
 </script>
 
 <template>
   <div class="mx-auto my-14 w-4/5 max-w-[1440px] bg-white rounded-xl shadow-xl">
 
-    <Header/>
+    <Header :total-price="totalPrice" @open-drawer="openDrawer"/>
 
-    <!--    <Drawer/>-->
+    <Drawer v-if="cartOpen" @close-drawer="closeDrawer" :total-price="totalPrice" :vat-price="vatPrice"/>
 
     <div class="p-10 flex flex-col gap-5">
       <div class="flex items-center  justify-between">
@@ -127,7 +168,7 @@ provide("toFavorite", handlerFavorite);
 
       </div>
 
-      <ProductList :items="items" @handlerFavorite="handlerFavorite"/>
+      <ProductList :items="items" @handler-favorite="handlerFavorite" @add-to-cart="onClickToCart"/>
     </div>
     <!--    <div class="mt-5 p-5 border">-->
     <!--      <RouterView/>-->

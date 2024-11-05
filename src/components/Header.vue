@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import {CircleUserRound, Heart, ShoppingCart} from "lucide-vue-next";
+
+const emit = defineEmits(["openDrawer"]);
+
+defineProps({
+  totalPrice: Number,
+});
+
 </script>
 
 <template>
@@ -11,9 +18,11 @@ import {CircleUserRound, Heart, ShoppingCart} from "lucide-vue-next";
 
     <nav>
       <ul class="flex items-center gap-10 text-slate-500">
-        <li class="flex items-center gap-3 cursor-pointer hover:text-black transition">
+        <li class="flex items-center gap-3 cursor-pointer hover:text-black transition"
+            @click="() => emit('openDrawer')"
+        >
           <ShoppingCart/>
-          <b>1233 р.</b>
+          <b>{{totalPrice}} р.</b>
         </li>
         <li class="flex items-center gap-3 cursor-pointer hover:text-black transition">
           <Heart/>

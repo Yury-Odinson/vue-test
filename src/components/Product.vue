@@ -7,7 +7,8 @@ const props = defineProps({
   price: Number,
   isFavorite: Boolean,
   isAdded: Boolean,
-  onClickFavorite: Function
+  onClickFavorite: Function,
+  onClickCart: Function
 });
 
 </script>
@@ -36,7 +37,7 @@ const props = defineProps({
         </p>
       </div>
 
-      <button class="opacity-50 hover:opacity-100 transition">
+      <button class="opacity-50 hover:opacity-100 transition" @click="onClickCart">
         <span v-if="isAdded">
           <SquareCheck :size="40" :stroke-width="1"/>
         </span>

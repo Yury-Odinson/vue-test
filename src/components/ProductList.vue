@@ -1,22 +1,20 @@
 <script setup lang="ts">
 import Product from "@/components/Product.vue";
 
-// import {inject} from "vue";
-
 interface ProductItem {
   id: number;
   imageUrl: string;
   title: string;
   price: number;
+  isFavorite: boolean;
+  isAdded: boolean;
 }
 
 const props = defineProps<{
   items: ProductItem[];
 }>();
 
-const emit = defineEmits(["handlerFavorite"]);
-
-// const handlerFavorite = inject("toFavorite");
+const emit = defineEmits(["handlerFavorite", "addToCart"]);
 
 </script>
 
@@ -30,8 +28,10 @@ const emit = defineEmits(["handlerFavorite"]);
       :image-url="item.imageUrl"
       :title="item.title"
       :price="item.price"
-      :onClickFavorite="() => emit('handlerFavorite', item)"
+      :on-click-favorite="() => emit('handlerFavorite', item)"
+      :on-click-cart="() => emit('addToCart', item)"
       :is-favorite="item.isFavorite"
+      :is-added="item.isAdded"
     />
 
   </section>
